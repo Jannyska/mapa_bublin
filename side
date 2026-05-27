@@ -1,0 +1,301 @@
+{
+  "people": [
+    { "id": "P01", "name": "Eliška Jevičová" },
+    { "id": "P02", "name": "Hanka Soukalová" },
+    { "id": "P03", "name": "Markéta Lázňovská" },
+    { "id": "P04", "name": "Zuzka" },
+    { "id": "P05", "name": "Katka Plevová" },
+    { "id": "P06", "name": "Katka Klusáková" },
+    { "id": "P07", "name": "Martin Bezányi" },
+    { "id": "P08", "name": "Jířa Jonáková" },
+    { "id": "P09", "name": "Adam Jarchovský" },
+    { "id": "P10", "name": "Hana Davidová" },
+    { "id": "P11", "name": "Bára Adolfová" },
+    { "id": "P12", "name": "Šárka Maršíková" },
+    { "id": "P13", "name": "Lucie Špačková" },
+    { "id": "P14", "name": "Káťa S." },
+    { "id": "P15", "name": "Adél" },
+    { "id": "P16", "name": "Soňa Barabášová" },
+    { "id": "P17", "name": "Káča" },
+    { "id": "P18", "name": "Veronika Jošková Štefanová" },
+    { "id": "P19", "name": "Lukáš" },
+    { "id": "P20", "name": "Clém Bastard" },
+    { "id": "P21", "name": "Cirkonauti" }
+  ],
+
+  "bubbles": [
+    {
+      "id": "B01",
+      "name": "Administrativní systém",
+      "description": "smlouvy, vnitřní předpisy, dodržování právních předpisů",
+      "leaderId": "P01",
+      "members": ["P01", "P02", "P03", "P04"]
+    },
+    {
+      "id": "B02",
+      "name": "Administrace kurzů",
+      "description": "zápisy, péče o kurzisty, komunikace s kurzisty",
+      "leaderId": "P05",
+      "members": ["P05", "P03", "P06", "P02", "P07"]
+    },
+    {
+      "id": "B03",
+      "name": "Cirkonet",
+      "description": "",
+      "leaderId": "P08",
+      "members": ["P08", "P09", "P06", "P10", "P02", "P11"]
+    },
+    {
+      "id": "B04",
+      "name": "Cirkopolis",
+      "description": "",
+      "leaderId": "P12",
+      "members": ["P12", "P04", "P13", "P14", "P15", "P16"]
+    },
+    {
+      "id": "B05",
+      "name": "Cirkusová pedagogika - strategie a advokacie",
+      "description": "účasti na konferencích, invaze na univerzity a další školy, komunikace s ministerstvy apod., spolupráce s dalšími obory",
+      "leaderId": "P11",
+      "members": ["P11", "P09", "P06", "P03", "P10", "P08"]
+    },
+    {
+      "id": "B06",
+      "name": "Cirkusové noci",
+      "description": "",
+      "leaderId": "P12",
+      "members": ["P12", "P04", "P16", "P08"]
+    },
+    {
+      "id": "B07",
+      "name": "CTF",
+      "description": "",
+      "leaderId": "P11",
+      "members": ["P11", "P09", "P06", "P10"]
+    },
+    {
+      "id": "B08",
+      "name": "Dárci, sponzoring",
+      "description": "",
+      "leaderId": "P01",
+      "members": ["P01", "P10", "P16"]
+    },
+    {
+      "id": "B09",
+      "name": "Eventy, workshopy, oslavy",
+      "description": "",
+      "leaderId": "P04",
+      "members": ["P04", "P03", "P10", "P07"]
+    },
+    {
+      "id": "B10",
+      "name": "Foto, video",
+      "description": "správa fotek a videí",
+      "leaderId": "P16",
+      "members": ["P16", "P04", "P02", "P14"]
+    },
+    {
+      "id": "B11",
+      "name": "Granty",
+      "description": "",
+      "leaderId": "P01",
+      "members": ["P01", "P12", "P11"]
+    },
+    {
+      "id": "B12",
+      "name": "IT",
+      "description": "správa počítačů, aplikací, internetu",
+      "leaderId": "P02",
+      "members": ["P02", "P07", "P01"]
+    },
+    {
+      "id": "B13",
+      "name": "Kavárna, recepce",
+      "description": "správa a provoz kavárny a recepce",
+      "leaderId": "P17",
+      "members": ["P17", "P07"]
+    },
+    {
+      "id": "B14",
+      "name": "Knihovna a výzkum",
+      "description": "",
+      "leaderId": "P18",
+      "members": ["P18", "P11", "P02"]
+    },
+    {
+      "id": "B15",
+      "name": "Klinika",
+      "description": "",
+      "leaderId": "P10",
+      "members": ["P10", "P11"]
+    },
+    {
+      "id": "B16",
+      "name": "Komunita",
+      "description": "komunita kurzistů a jejich rodin, lektoři a rezidenti",
+      "leaderId": "P11",
+      "members": ["P11", "P10", "P06", "P03", "P09"]
+    },
+    {
+      "id": "B17",
+      "name": "Umělci",
+      "description": "péče o umělce, podpora umělců",
+      "leaderId": "P12",
+      "members": ["P12", "P04"]
+    },
+    {
+      "id": "B18",
+      "name": "Merch, obchod",
+      "description": "",
+      "leaderId": "P16",
+      "members": ["P16", "P03", "P20", "P07"]
+    },
+    {
+      "id": "B19",
+      "name": "Mobility",
+      "description": "správa a organizace mobilit, vytvoření pravidel pro výjezdy",
+      "leaderId": "P11",
+      "members": ["P11", "P04", "P12", "P10", "P02"]
+    },
+    {
+      "id": "B20",
+      "name": "Na cirkus",
+      "description": "",
+      "leaderId": "P02",
+      "members": ["P02", "P11"]
+    },
+    {
+      "id": "B21",
+      "name": "Next",
+      "description": "",
+      "leaderId": "P12",
+      "members": ["P12", "P04", "P13"]
+    },
+    {
+      "id": "B22",
+      "name": "Provoz budovy Nusle",
+      "description": "řešení technických záležitostí, revize a kontroly",
+      "leaderId": "P07",
+      "members": ["P07", "P17", "P06", "P01"]
+    },
+    {
+      "id": "B23",
+      "name": "Nuselské dvorky",
+      "description": "",
+      "leaderId": "P12",
+      "members": ["P12", "P04", "P14", "P03", "P16"]
+    },
+    {
+      "id": "B24",
+      "name": "Péče o lektory",
+      "description": "komunikace, administrativa, wellbeing, rozvoj",
+      "leaderId": "P02",
+      "members": ["P02", "P06", "P09", "P03", "P10"]
+    },
+    {
+      "id": "B25",
+      "name": "Studentské Performance Groups",
+      "description": "organizace studentských performance skupin",
+      "leaderId": "P11",
+      "members": ["P11", "P08", "P02", "P12", "P06"]
+    },
+    {
+      "id": "B26",
+      "name": "Provoz a rekonstrukce budovy Petrohradská",
+      "description": "",
+      "leaderId": "P04",
+      "members": ["P04", "P19", "P01", "P12"]
+    },
+    {
+      "id": "B27",
+      "name": "Podcasty",
+      "description": "",
+      "leaderId": "P18",
+      "members": ["P18", "P16", "P14"]
+    },
+    {
+      "id": "B28",
+      "name": "PR, marketing",
+      "description": "",
+      "leaderId": "P16",
+      "members": ["P16", "P14", "P15", "P01"]
+    },
+    {
+      "id": "B29",
+      "name": "Profi tréninky",
+      "description": "",
+      "leaderId": "P04",
+      "members": ["P04", "P07"]
+    },
+    {
+      "id": "B30",
+      "name": "Pronájmy",
+      "description": "",
+      "leaderId": "P04",
+      "members": ["P04", "P16"]
+    },
+    {
+      "id": "B31",
+      "name": "Rezervační systém",
+      "description": "",
+      "leaderId": "P03",
+      "members": ["P03", "P05", "P07", "P02", "P06"]
+    },
+    {
+      "id": "B32",
+      "name": "Cirkus třetího věku",
+      "description": "",
+      "leaderId": "P10",
+      "members": ["P10", "P09"]
+    },
+    {
+      "id": "B33",
+      "name": "Social Circus",
+      "description": "využívání cirkusových umění jako nástroje prevence a intervence",
+      "leaderId": "P11",
+      "members": ["P11", "P10", "P09", "P06", "P08", "P02"]
+    },
+    {
+      "id": "B34",
+      "name": "Soc. sítě",
+      "description": "",
+      "leaderId": "P14",
+      "members": ["P14", "P16"]
+    },
+    {
+      "id": "B35",
+      "name": "Strategické plánování",
+      "description": "",
+      "leaderId": "P03",
+      "members": ["P03", "P01"]
+    },
+    {
+      "id": "B36",
+      "name": "Sympozium",
+      "description": "",
+      "leaderId": "P11",
+      "members": ["P11", "P01", "P09", "P06", "P08", "P10"]
+    },
+    {
+      "id": "B37",
+      "name": "Teens",
+      "description": "",
+      "leaderId": "P02",
+      "members": ["P02", "P11", "P06", "P09", "P08", "P20", "P21"]
+    },
+    {
+      "id": "B38",
+      "name": "TěloCIRK",
+      "description": "",
+      "leaderId": "P03",
+      "members": ["P03", "P09", "P08", "P06"]
+    },
+    {
+      "id": "B39",
+      "name": "Web",
+      "description": "",
+      "leaderId": "P02",
+      "members": ["P02", "P16", "P03", "P14", "P12", "P07"]
+    }
+  ]
+}
