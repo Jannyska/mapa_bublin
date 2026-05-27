@@ -286,10 +286,10 @@ function drawBubble(n, state) {
   const b = n.data, dark = isDark();
   let fill, stroke, lw, alpha = 1;
   if (state === 'hovered')       { fill='#1D9E75'; stroke='#085041'; lw=2; }
-  else if (state === 'selected') { fill='#0F6E56'; stroke='#04342C'; lw=2.5; }
-  else if (state === 'related')  { fill='#5DCAA5'; stroke='#1D9E75'; lw=1.5; }
+  else if (state === 'selected') { fill='#0F6E56'; stroke='#8B1A1A'; lw=2.5; }
+  else if (state === 'related')  { fill='#CD2626'; stroke='#1D9E75'; lw=1.5; }
   else if (state === 'dimmed')   { fill=dark?'#1a2e27':'#c8ece2'; stroke=dark?'#1D9E75':'#9FE1CB'; lw=0.5; alpha=0.3; }
-  else                           { fill='#5DCAA5'; stroke='#1D9E75'; lw=0.5; }
+  else                           { fill='#CD2626'; stroke='#8B1A1A'; lw=0.5; }
 
   ctx.globalAlpha = alpha;
   ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
