@@ -1,3 +1,730 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa bublin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f1efe8;
+      --bg-warning: #faeeda;
+      --bg-info: #e6f1fb;
+      --text-primary: #2c2c2a;
+      --text-secondary: #5f5e5a;
+      --text-tertiary: #888780;
+      --text-warning: #854f0b;
+      --text-info: #185fa5;
+      --border-secondary: rgba(44,44,42,0.3);
+      --border-tertiary: rgba(44,44,42,0.15);
+      --border-warning: rgba(133,79,11,0.35);
+      --border-info: rgba(24,95,165,0.35);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font: system-ui, -apple-system, sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1a1a18;
+        --bg-secondary: #2c2c2a;
+        --bg-warning: #412402;
+        --bg-info: #042c53;
+        --text-primary: #e8e6dc;
+        --text-secondary: #b4b2a9;
+        --text-tertiary: #888780;
+        --text-warning: #fac775;
+        --text-info: #85b7eb;
+        --border-secondary: rgba(232,230,220,0.3);
+        --border-tertiary: rgba(232,230,220,0.15);
+        --border-warning: rgba(250,199,117,0.35);
+        --border-info: rgba(133,183,235,0.35);
+      }
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: var(--text-primary);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    #controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    #search {
+      flex: 1;
+      min-width: 160px;
+      font-size: 13px;
+      font-family: var(--font);
+      padding: 6px 12px;
+      border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    #search:focus { border-color: var(--text-info); box-shadow: 0 0 0 2px var(--border-info); }
+
+    #legend {
+      display: flex;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .leg-item { display: flex; align-items: center; gap: 5px; }
+    .leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    canvas {
+      display: block;
+      width: 100%;
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-lg);
+      cursor: default;
+    }
+
+    #tooltip {
+      position: fixed;
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 12px;
+      font-family: var(--font);
+      pointer-events: none;
+      display: none;
+      z-index: 999;
+      max-width: 260px;
+      color: var(--text-primary);
+    }
+
+    #tooltip .tip-title { font-weight: 500; font-size: 13px; margin-bottom: 6px; }
+    #tooltip .tip-leader { color: var(--text-warning); font-size: 12px; margin-bottom: 4px; }
+    #tooltip .tip-members { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-secondary);
+      border: 0.5px solid var(--border-secondary);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      cursor: default;
+    }
+    .chip.leader { background: var(--bg-warning); border-color: var(--border-warning); color: var(--text-warning); }
+    .chip.clickable { cursor: pointer; transition: background 0.15s; }
+    .chip.clickable:hover { background: var(--bg-info); border-color: var(--border-info); color: var(--text-info); }
+    .chip.active { background: var(--bg-info); border-color: var(--border-info); color: var(--text-info); }
+
+    #person-detail {
+      margin-top: 10px;
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-secondary);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: none;
+      font-family: var(--font);
+    }
+    #person-detail .pd-name { font-weight: 500; font-size: 14px; color: var(--text-primary); margin-bottom: 4px; }
+    #person-detail .pd-sub { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
+    #person-detail .pd-bubbles { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    #detail {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-top: 10px;
+      font-size: 13px;
+      font-family: var(--font);
+      min-height: 56px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    #detail .det-title { font-weight: 500; color: var(--text-primary); margin-bottom: 4px; font-size: 14px; }
+    #detail .det-sub { color: var(--text-secondary); font-size: 12px; margin-bottom: 10px; }
+    #detail .det-members { display: flex; flex-wrap: wrap; gap: 6px; }
+    #detail .section-label {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 12px 0 6px;
+    }
+
+    .shared-block {
+      margin-top: 6px;
+      padding: 8px 10px;
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-tertiary);
+      border-radius: var(--radius-md);
+    }
+    .shared-block .sb-title { font-size: 12px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+    .shared-block .sb-names { font-size: 11px; color: var(--text-secondary); }
+
+    @media (max-width: 500px) {
+      body { padding: 12px 10px 32px; }
+      h1 { font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Mapa bublin</h1>
+<p class="subtitle">Najeď na bublinu pro náhled členů · klikni pro detail</p>
+
+<div id="controls">
+  <input id="search" type="text" placeholder="Hledat osobu nebo bublinu…" oninput="onSearch(this.value)">
+  <div id="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#F09595;border:1.5px solid #E24B4A"></div>Bublina</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#EF9F27;border:1.5px solid #BA7517"></div>Leader bubliny</div>
+  </div>
+</div>
+
+<canvas id="c"></canvas>
+<div id="tooltip"></div>
+<div id="person-detail"></div>
+<div id="detail">Najeď na bublinu pro náhled členů, klikni pro detail.</div>
+
+<script>
+const DATA = {
+  people: [
+    { "id": "P01", "name": "Eliška Jevičová" },
+    { "id": "P02", "name": "Hanka Soukalová" },
+    { "id": "P03", "name": "Markéta Lázňovská" },
+    { "id": "P04", "name": "Zuzka" },
+    { "id": "P05", "name": "Katka Plevová" },
+    { "id": "P06", "name": "Katka Klusáková" },
+    { "id": "P07", "name": "Martin Bezányi" },
+    { "id": "P08", "name": "Jířa Jonáková" },
+    { "id": "P09", "name": "Adam Jarchovský" },
+    { "id": "P10", "name": "Hana Davidová" },
+    { "id": "P11", "name": "Bára Adolfová" },
+    { "id": "P12", "name": "Šárka Maršíková" },
+    { "id": "P13", "name": "Lucie Špačková" },
+    { "id": "P14", "name": "Káťa S." },
+    { "id": "P15", "name": "Adél" },
+    { "id": "P16", "name": "Soňa Barabášová" },
+    { "id": "P17", "name": "Káča" },
+    { "id": "P18", "name": "Veronika Jošková Štefanová" },
+    { "id": "P19", "name": "Lukáš" },
+    { "id": "P20", "name": "Clém Bastard" },
+    { "id": "P21", "name": "Cirkonauti" }
+  ],
+  bubbles: [
+    {
+      "id": "B01",
+      "name": "Administrativní systém",
+      "description": "smlouvy, vnitřní předpisy, dodržování právních předpisů",
+      "leaderId": "P01",
+      "members": ["P01", "P02", "P03", "P04"]
+    },
+    {
+      "id": "B02",
+      "name": "Administrace kurzů",
+      "description": "zápisy, péče o kurzisty, komunikace s kurzisty",
+      "leaderId": "P05",
+      "members": ["P05", "P03", "P06", "P02", "P07"]
+    },
+    {
+      "id": "B03",
+      "name": "Cirkonet",
+      "description": "",
+      "leaderId": "P08",
+      "members": ["P08", "P09", "P06", "P10", "P02", "P11"]
+    },
+    {
+      "id": "B04",
+      "name": "Cirkopolis",
+      "description": "",
+      "leaderId": "P12",
+      "members": ["P12", "P04", "P13", "P14", "P15", "P16"]
+    },
+    {
+      "id": "B05",
+      "name": "Cirkusová pedagogika - strategie a advokacie",
+      "description": "účasti na konferencích, invaze na univerzity a další školy, komunikace s ministerstvy apod., spolupráce s dalšími obory",
+      "leaderId": "P11",
+      "members": ["P11", "P09", "P06", "P03", "P10", "P08"]
+    },
+    {
+      "id": "B06",
+      "name": "Cirkusové noci",
+      "description": "",
+      "leaderId": "P12",
+      "members": ["P12", "P04", "P16", "P08"]
+    },
+    {
+      "id": "B07",
+      "name": "CTF",
+      "description": "",
+      "leaderId": "P11",
+      "members": ["P11", "P09", "P06", "P10"]
+    },
+    {
+      "id": "B08",
+      "name": "Dárci, sponzoring",
+      "description": "",
+      "leaderId": "P01",
+      "members": ["P01", "P10", "P16"]
+    },
+    {
+      "id": "B09",
+      "name": "Eventy, workshopy, oslavy",
+      "description": "",
+      "leaderId": "P04",
+      "members": ["P04", "P03", "P10", "P07"]
+    },
+    {
+      "id": "B10",
+      "name": "Foto, video",
+      "description": "správa fotek a videí",
+      "leaderId": "P16",
+      "members": ["P16", "P04", "P02", "P14"]
+    },
+    {
+      "id": "B11",
+      "name": "Granty",
+      "description": "",
+      "leaderId": "P01",
+      "members": ["P01", "P12", "P11"]
+    },
+    {
+      "id": "B12",
+      "name": "IT",
+      "description": "správa počítačů, aplikací, internetu",
+      "leaderId": "P02",
+      "members": ["P02", "P07", "P01"]
+    },
+    {
+      "id": "B13",
+      "name": "Kavárna, recepce",
+      "description": "správa a provoz kavárny a recepce",
+      "leaderId": "P17",
+      "members": ["P17", "P07"]
+    },
+    {
+      "id": "B14",
+      "name": "Knihovna a výzkum",
+      "description": "",
+      "leaderId": "P18",
+      "members": ["P18", "P11", "P02"]
+    },
+    {
+      "id": "B15",
+      "name": "Klinika",
+      "description": "",
+      "leaderId": "P10",
+      "members": ["P10", "P11"]
+    },
+    {
+      "id": "B16",
+      "name": "Komunita",
+      "description": "komunita kurzistů a jejich rodin, lektoři a rezidenti",
+      "leaderId": "P11",
+      "members": ["P11", "P10", "P06", "P03", "P09"]
+    },
+    {
+      "id": "B17",
+      "name": "Umělci",
+      "description": "péče o umělce, podpora umělců",
+      "leaderId": "P12",
+      "members": ["P12", "P04"]
+    },
+    {
+      "id": "B18",
+      "name": "Merch, obchod",
+      "description": "",
+      "leaderId": "P16",
+      "members": ["P16", "P03", "P20", "P07"]
+    },
+    {
+      "id": "B19",
+      "name": "Mobility",
+      "description": "správa a organizace mobilit, vytvoření pravidel pro výjezdy",
+      "leaderId": "P11",
+      "members": ["P11", "P04", "P12", "P10", "P02"]
+    },
+    {
+      "id": "B20",
+      "name": "Na cirkus",
+      "description": "",
+      "leaderId": "P02",
+      "members": ["P02", "P11"]
+    },
+    {
+      "id": "B21",
+      "name": "Next",
+      "description": "",
+      "leaderId": "P12",
+      "members": ["P12", "P04", "P13"]
+    },
+    {
+      "id": "B22",
+      "name": "Provoz budovy Nusle",
+      "description": "řešení technických záležitostí, revize a kontroly",
+      "leaderId": "P07",
+      "members": ["P07", "P17", "P06", "P01"]
+    },
+    {
+      "id": "B23",
+      "name": "Nuselské dvorky",
+      "description": "",
+      "leaderId": "P12",
+      "members": ["P12", "P04", "P14", "P03", "P16"]
+    },
+    {
+      "id": "B24",
+      "name": "Péče o lektory",
+      "description": "komunikace, administrativa, wellbeing, rozvoj",
+      "leaderId": "P02",
+      "members": ["P02", "P06", "P09", "P03", "P10"]
+    },
+    {
+      "id": "B25",
+      "name": "Studentské Performance Groups",
+      "description": "organizace studentských performance skupin",
+      "leaderId": "P11",
+      "members": ["P11", "P08", "P02", "P12", "P06"]
+    },
+    {
+      "id": "B26",
+      "name": "Provoz a rekonstrukce budovy Petrohradská",
+      "description": "",
+      "leaderId": "P04",
+      "members": ["P04", "P19", "P01", "P12"]
+    },
+    {
+      "id": "B27",
+      "name": "Podcasty",
+      "description": "",
+      "leaderId": "P18",
+      "members": ["P18", "P16", "P14"]
+    },
+    {
+      "id": "B28",
+      "name": "PR, marketing",
+      "description": "",
+      "leaderId": "P16",
+      "members": ["P16", "P14", "P15", "P01"]
+    },
+    {
+      "id": "B29",
+      "name": "Profi tréninky",
+      "description": "",
+      "leaderId": "P04",
+      "members": ["P04", "P07"]
+    },
+    {
+      "id": "B30",
+      "name": "Pronájmy",
+      "description": "",
+      "leaderId": "P04",
+      "members": ["P04", "P16"]
+    },
+    {
+      "id": "B31",
+      "name": "Rezervační systém",
+      "description": "",
+      "leaderId": "P03",
+      "members": ["P03", "P05", "P07", "P02", "P06"]
+    },
+    {
+      "id": "B32",
+      "name": "Cirkus třetího věku",
+      "description": "",
+      "leaderId": "P10",
+      "members": ["P10", "P09"]
+    },
+    {
+      "id": "B33",
+      "name": "Social Circus",
+      "description": "využívání cirkusových umění jako nástroje prevence a intervence",
+      "leaderId": "P11",
+      "members": ["P11", "P10", "P09", "P06", "P08", "P02"]
+    },
+    {
+      "id": "B34",
+      "name": "Soc. sítě",
+      "description": "",
+      "leaderId": "P14",
+      "members": ["P14", "P16"]
+    },
+    {
+      "id": "B35",
+      "name": "Strategické plánování",
+      "description": "",
+      "leaderId": "P03",
+      "members": ["P03", "P01"]
+    },
+    {
+      "id": "B36",
+      "name": "Sympozium",
+      "description": "",
+      "leaderId": "P11",
+      "members": ["P11", "P01", "P09", "P06", "P08", "P10"]
+    },
+    {
+      "id": "B37",
+      "name": "Teens",
+      "description": "",
+      "leaderId": "P02",
+      "members": ["P02", "P11", "P06", "P09", "P08", "P20", "P21"]
+    },
+    {
+      "id": "B38",
+      "name": "TěloCIRK",
+      "description": "",
+      "leaderId": "P03",
+      "members": ["P03", "P09", "P08", "P06"]
+    },
+    {
+      "id": "B39",
+      "name": "Web",
+      "description": "",
+      "leaderId": "P02",
+      "members": ["P02", "P16", "P03", "P14", "P12", "P07"]
+    }
+  ]
+};
+
+const pMap = {}, bMap = {};
+DATA.people.forEach(p => pMap[p.id] = p);
+DATA.bubbles.forEach(b => bMap[b.id] = b);
+
+function sharedMembers(b1, b2) { return b1.members.filter(m => b2.members.includes(m)); }
+function sharedCount(b1, b2) { return sharedMembers(b1, b2).length; }
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, nodes = [], hoveredId = null, selectedBubbleId = null, selectedPersonId = null, searchHighlight = null;
+
+function isDark() { return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
+
+function initLayout() {
+  W = canvas.offsetWidth;
+  H = Math.round(W * 0.68);
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  nodes = [];
+  const PAD = 56, cols = 6, rows = Math.ceil(DATA.bubbles.length / cols);
+  const cellW = (W - PAD*2) / cols, cellH = (H - PAD*2) / rows;
+  const jitters = [0.08,-0.12,0.15,-0.07,0.11,-0.09,0.13,-0.14,0.06,-0.10,0.09,-0.11,0.14,-0.08,0.12,-0.06,0.10,-0.13];
+  DATA.bubbles.forEach((b, i) => {
+    const col = i % cols, row = Math.floor(i / cols);
+    const x = PAD + (col + 0.5) * cellW + jitters[i % jitters.length] * cellW;
+    const y = PAD + (row + 0.5) * cellH + jitters[(i+3) % jitters.length] * cellH;
+    const r = 28 + b.members.length * 2.8;
+    nodes.push({ id: b.id, x, y, r, data: b });
+  });
+  draw();
+}
+
+function drawBubble(n, state) {
+  const b = n.data, dark = isDark();
+  let fill, stroke, lw, alpha = 1;
+  if (state === 'hovered')       { fill='#CD2626'; stroke='#791F1F'; lw=2; }
+  else if (state === 'selected') { fill='#A32D2D'; stroke='#501313'; lw=2.5; }
+  else if (state === 'related')  { fill='#F09595'; stroke='#CD2626'; lw=1.5; }
+  else if (state === 'dimmed')   { fill=dark?'#2d1010':'#FCEBEB'; stroke=dark?'#A32D2D':'#F7C1C1'; lw=0.5; alpha=0.3; }
+  else                           { fill='#F09595'; stroke='#E24B4A'; lw=0.5; }
+
+  ctx.globalAlpha = alpha;
+  ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+  ctx.fillStyle = fill; ctx.fill();
+  ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke();
+
+  if (alpha > 0.5) {
+    ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 3.5, 0, Math.PI*2);
+    ctx.strokeStyle = '#EF9F27';
+    ctx.lineWidth = state === 'selected' ? 2.5 : state === 'hovered' ? 2 : 1;
+    ctx.globalAlpha = state === 'selected' ? 1 : state === 'hovered' ? 0.9 : 0.5;
+    ctx.stroke();
+  }
+  ctx.globalAlpha = alpha;
+
+  ctx.fillStyle = '#4A1B0C'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const words = b.name.split(' '), fs = Math.max(9, Math.min(12, n.r / 2.8));
+  ctx.font = `500 ${fs}px ${getComputedStyle(document.body).fontFamily}`;
+  if (words.length === 1) { ctx.fillText(words[0], n.x, n.y); }
+  else if (words.length === 2) { ctx.fillText(words[0], n.x, n.y - fs*0.65); ctx.fillText(words[1], n.x, n.y + fs*0.65); }
+  else { const mid = Math.ceil(words.length/2); ctx.fillText(words.slice(0,mid).join(' '), n.x, n.y - fs*0.65); ctx.fillText(words.slice(mid).join(' '), n.x, n.y + fs*0.65); }
+
+  ctx.globalAlpha = alpha;
+  const bx = n.x + n.r*0.66, by = n.y - n.r*0.66;
+  ctx.beginPath(); ctx.arc(bx, by, 9, 0, Math.PI*2); ctx.fillStyle='#791F1F'; ctx.fill();
+  ctx.font = `500 9px ${getComputedStyle(document.body).fontFamily}`; ctx.fillStyle='#FCEBEB';
+  ctx.fillText(b.members.length, bx, by);
+  ctx.globalAlpha = 1;
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  const dark = isDark(), activeBid = selectedBubbleId || hoveredId;
+  DATA.bubbles.forEach((b1, i) => {
+    DATA.bubbles.forEach((b2, j) => {
+      if (j <= i) return;
+      const shared = sharedCount(b1, b2);
+      if (activeBid) { if (b1.id !== activeBid && b2.id !== activeBid) return; if (shared < 1) return; }
+      else { if (shared < 2) return; }
+      const n1 = nodes[i], n2 = nodes[j];
+      ctx.beginPath(); ctx.moveTo(n1.x, n1.y); ctx.lineTo(n2.x, n2.y);
+      if (activeBid && (b1.id === activeBid || b2.id === activeBid)) {
+        ctx.strokeStyle='#F09595'; ctx.lineWidth=shared*1.3; ctx.globalAlpha=0.3+shared*0.08;
+      } else {
+        ctx.strokeStyle=dark?'#2C2C2A':'#D3D1C7'; ctx.lineWidth=shared*0.5; ctx.globalAlpha=0.5;
+      }
+      ctx.stroke(); ctx.globalAlpha=1;
+    });
+  });
+  nodes.forEach(n => {
+    let state = 'normal';
+    if (searchHighlight) {
+      const b = n.data;
+      state = (b.name.toLowerCase().includes(searchHighlight) || b.members.some(mid => pMap[mid].name.toLowerCase().includes(searchHighlight))) ? 'related' : 'dimmed';
+    } else if (selectedBubbleId) {
+      if (n.id === selectedBubbleId) state = 'selected';
+      else state = sharedCount(bMap[selectedBubbleId], n.data) > 0 ? 'related' : 'dimmed';
+    } else if (hoveredId) {
+      if (n.id === hoveredId) state = 'hovered';
+      else state = sharedCount(bMap[hoveredId], n.data) > 0 ? 'normal' : 'dimmed';
+    }
+    drawBubble(n, state);
+  });
+}
+
+function nodeAt(mx, my) {
+  for (let i = nodes.length-1; i >= 0; i--) {
+    const n = nodes[i], dx = mx-n.x, dy = my-n.y;
+    if (dx*dx+dy*dy <= (n.r+4)*(n.r+4)) return n;
+  }
+  return null;
+}
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const n = nodeAt(e.clientX - rect.left, e.clientY - rect.top);
+  const tip = document.getElementById('tooltip');
+  if (n) {
+    canvas.style.cursor = 'pointer';
+    const b = n.data, leader = pMap[b.leaderId];
+    const chips = b.members.map(mid => {
+      const p = pMap[mid], cls = mid === b.leaderId ? 'chip leader' : 'chip';
+      return `<span class="${cls}">${p.name}${mid===b.leaderId?' ★':''}</span>`;
+    }).join('');
+    tip.innerHTML = `<div class="tip-title">${b.name}</div><div class="tip-leader">★ ${leader.name}</div><div style="color:var(--text-secondary);font-size:11px;margin-bottom:3px">${b.members.length} členů:</div><div class="tip-members">${chips}</div>`;
+    tip.style.display = 'block';
+    let tx = e.clientX+14, ty = e.clientY-10;
+    if (tx+270 > window.innerWidth-10) tx = e.clientX-274;
+    if (ty+150 > window.innerHeight-10) ty = e.clientY-150;
+    tip.style.left = tx+'px'; tip.style.top = ty+'px';
+    if (hoveredId !== n.id) { hoveredId = n.id; draw(); }
+  } else {
+    canvas.style.cursor = 'default'; tip.style.display = 'none';
+    if (hoveredId) { hoveredId = null; draw(); }
+  }
+});
+
+canvas.addEventListener('mouseleave', () => {
+  document.getElementById('tooltip').style.display = 'none';
+  hoveredId = null; draw();
+});
+
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const n = nodeAt(e.clientX - rect.left, e.clientY - rect.top);
+  if (!n) {
+    selectedBubbleId = null; selectedPersonId = null;
+    document.getElementById('detail').innerHTML = 'Najeď na bublinu pro náhled členů, klikni pro detail.';
+    document.getElementById('person-detail').style.display = 'none';
+    draw(); return;
+  }
+  selectedBubbleId = n.id; selectedPersonId = null;
+  document.getElementById('person-detail').style.display = 'none';
+  renderBubbleDetail(n.data);
+  draw();
+});
+
+function renderBubbleDetail(b) {
+  const leader = pMap[b.leaderId];
+  const memberChips = b.members.map(mid => {
+    const p = pMap[mid], isLeader = mid === b.leaderId;
+    const activeClass = selectedPersonId === mid ? ' active' : '';
+    return `<span class="chip clickable${isLeader?' leader':''}${activeClass}" onclick="selectPerson('${mid}')">${p.name}${isLeader?' ★':''}</span>`;
+  }).join('');
+  const sharedBlocks = DATA.bubbles
+    .filter(b2 => b2.id !== b.id && sharedCount(b, b2) > 0)
+    .sort((a, b2) => sharedCount(b, b2) - sharedCount(b, a))
+    .map(b2 => {
+      const shared = sharedMembers(b, b2);
+      const names = shared.map(mid => pMap[mid].name).join(', ');
+      return `<div class="shared-block"><div class="sb-title">${b2.name} <span style="font-weight:400;color:var(--text-secondary)">(${shared.length})</span></div><div class="sb-names">${names}</div></div>`;
+    }).join('');
+  document.getElementById('detail').innerHTML = `
+    <div class="det-title">${b.name}</div>
+    <div class="det-sub">Leader: <strong>${leader.name}</strong> · ${b.members.length} členů · klikni na člena pro jeho bubliny</div>
+    <div class="det-members">${memberChips}</div>
+    ${sharedBlocks ? `<div class="section-label">Sdílí členy s</div>${sharedBlocks}` : ''}
+  `;
+}
+
+function selectPerson(pid) {
+  selectedPersonId = pid;
+  if (selectedBubbleId) renderBubbleDetail(bMap[selectedBubbleId]);
+  const p = pMap[pid];
+  const myBubbles = DATA.bubbles.filter(b => b.members.includes(pid));
+  const asLeader = myBubbles.filter(b => b.leaderId === pid);
+  const bChips = myBubbles.map(b => {
+    const isLeader = b.leaderId === pid;
+    return `<span class="chip${isLeader?' leader':''}">${b.name}${isLeader?' ★':''}</span>`;
+  }).join('');
+  const pd = document.getElementById('person-detail');
+  pd.style.display = 'block';
+  pd.innerHTML = `
+    <div class="pd-name">${p.name}</div>
+    <div class="pd-sub">${myBubbles.length} bublin · ${asLeader.length > 0 ? `leader v ${asLeader.length}` : 'není leader'}</div>
+    <div class="pd-bubbles">${bChips}</div>
+  `;
+  pd.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function onSearch(val) { searchHighlight = val.trim().toLowerCase() || null; draw(); }
+
+window.addEventListener('resize', initLayout);
+initLayout();
+</script>
+</body>
+</html>
+
+
 {
   "people": [
     { "id": "P01", "name": "Eliška Jevičová" },
